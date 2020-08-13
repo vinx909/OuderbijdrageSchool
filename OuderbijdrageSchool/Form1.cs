@@ -21,10 +21,14 @@ namespace OuderbijdrageSchool
         private const int oldChildContribution = 37;
         private const int oldChildUpperLimit = 2;
         private const int agdOfOldChild = 10;
+        private const int percentageTotal = 100;
         private const int singleParentPersentageReduction = 25;
 
         private const string currentDatelabelText = "current date:";
         private const string addChildButtonText = "add child";
+        private const string singleParentCheckBoxText = "single parent";
+        private const string calculateParentalContributionButtonText = "calculate parental contribution";
+        private const string parentalContributionMessageBoxText = "parental contribution: ";
 
         private const int widthMargin = 10;
         private const int heightMargin = 10;
@@ -33,6 +37,8 @@ namespace OuderbijdrageSchool
         private Date currentDate;
         private List<ChildBirthDate> childBirthDates;
         private Button addChildButton;
+        private CheckBox singleParentCheckBox;
+        private Button calculateParentalContributionButton;
 
         public Form1()
         {
@@ -40,6 +46,8 @@ namespace OuderbijdrageSchool
             CurrentDateInitialize();
             ChildBirthDatesInitialize();
             AddChildButtonInitialize();
+            SingleParentCheckBoxInitialize();
+            CalculateParentalContributionButtonInitialize();
             ResetPositions();
         }
 
@@ -65,14 +73,28 @@ namespace OuderbijdrageSchool
             addChildButton.Click += new EventHandler(ButtonFunctionAddChild);
             Controls.Add(addChildButton);
         }
+        private void SingleParentCheckBoxInitialize()
+        {
+            singleParentCheckBox = new CheckBox();
+            singleParentCheckBox.Text = singleParentCheckBoxText;
+            Controls.Add(singleParentCheckBox);
+        }
+        private void CalculateParentalContributionButtonInitialize()
+        {
+            calculateParentalContributionButton = new Button();
+            calculateParentalContributionButton.Text = calculateParentalContributionButtonText;
+            calculateParentalContributionButton.Click += new EventHandler(ButtonFunctionCalculateParentalContribution);
+            Controls.Add(calculateParentalContributionButton);
+        }
         internal void ChildBirthDatesRemove(ChildBirthDate toRemove)
         {
             childBirthDates.Remove(toRemove);
             ResetPositions();
         }
-        private int CalculateParentalContribution()
+
+        private double CalculateParentalContribution()
         {
-            int total = startingContribution;
+            double total = startingContribution;
             int numberOfYoungerChilderen = 0;
             int numberOfOlderChilderen = 0;
             int[] currentDate = this.currentDate.GetDate();
@@ -93,6 +115,10 @@ namespace OuderbijdrageSchool
             }
             total += Math.Min(numberOfYoungerChilderen, youngChildUpperLimit) * youngChildContribution;
             total += Math.Min(numberOfOlderChilderen, oldChildUpperLimit) * oldChildContribution;
+            if (singleParentCheckBox.Checked==true)
+            {
+                total = total /percentageTotal *(percentageTotal-singleParentPersentageReduction);
+            }
             return total;
         }
 
@@ -108,12 +134,19 @@ namespace OuderbijdrageSchool
             }
             addChildButton.Location = new Point(widthMargin, heightMargin + rowHeight * numberOfRowsDown);
             numberOfRowsDown++;
+            singleParentCheckBox.Location = new Point(widthMargin, heightMargin + rowHeight * numberOfRowsDown);
+            numberOfRowsDown++;
+            calculateParentalContributionButton.Location = new Point(widthMargin, heightMargin + rowHeight * numberOfRowsDown);
         }
 
         private void ButtonFunctionAddChild(object sender, EventArgs e)
         {
             ChildBirthDatesAddNew();
             ResetPositions();
+        }
+        private void ButtonFunctionCalculateParentalContribution(object sender, EventArgs e)
+        {
+            MessageBox.Show(parentalContributionMessageBoxText + CalculateParentalContribution());
         }
 
         internal class Date
